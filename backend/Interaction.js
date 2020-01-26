@@ -10,13 +10,6 @@ const interact = (relationship) => {
     relationship.status.friendship += 1;
   }
 
-  console.log({
-    situationFriendliness,
-    p1Friendliness,
-    p2Friendliness,
-    newStatus: relationship.status.friendship,
-  })
-
 }
 
 const createRelationship = (p1, p2) => {

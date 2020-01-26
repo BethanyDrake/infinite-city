@@ -24,12 +24,6 @@ const getSexuality = () => {
   if (gayness < 0.85) return 'bisexual';
   if (gayness < 0.90) return 'mostly gay';
   return 'super gay';
-
-  //super gay 10%
-  //mostly gay  5%
-  //bisexual 5%
-  //mostly straight 5%
-  //super straight 75%
 }
 
 const getGender = () => {
