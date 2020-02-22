@@ -1,10 +1,13 @@
 const Person = require('./Person.js');
 const Interaction = require('./Interaction.js');
+const Location = require('./Location.js')
+const Randomer = require('./Randomer.js')
 
 const population = 10;
 
 
-
+const city = Location.createCity(4);
+console.log({city})
 
 const generatePeople = (populationSize) => {
   const people = [];
@@ -12,11 +15,18 @@ const generatePeople = (populationSize) => {
     people.push(Person.createPerson());
   }
   console.log("total population count: " + people.length);
+
+  people.forEach(person => {
+    console.log({Suburbs: city.subLocations})
+    const suburb = Randomer.randomElement(city.subLocations);
+    console.log ("i live in:", suburb );
+    person.traits.location = suburb;
+  })
   return people;
 }
-let people = generatePeople(population);
+let people = []; //= generatePeople(population);
 
-const initialiseRelationships = (people) => {
+const initialiseRelationships = (people, existingPeople = []) => {
   const relationships = [];
   const population = people.length;
   for (let j=0; j< population-1; j++) {
@@ -24,18 +34,32 @@ const initialiseRelationships = (people) => {
       relationships.push(Interaction.createRelationship(people[j], people[k]));
     }
   }
+
+
+  existingPeople.forEach(existingPerson => {
+    people.forEach(newPerson => {
+      relationships.push(Interaction.createRelationship(existingPerson, newPerson));
+
+    })
+
+
+  })
+
   console.log("total relationship count: " + relationships.length);
+
   return relationships;
 }
 
-let relationships = initialiseRelationships(people);
 
+let relationships = []; // = initialiseRelationships(people);
 
 
 
 const numberOfInteractions = 10;
 
-const interactABunch = (relationships, numberOfInteractions = 1) => {
+const interactABunch = (numberOfInteractions = 1) => {
+  console.log("interacting!")
+  console.log(relationships.length)
   for (let i=0; i< numberOfInteractions; i++) {
     relationships.forEach(relationship => {
       Interaction.interact(relationship);
@@ -43,68 +67,55 @@ const interactABunch = (relationships, numberOfInteractions = 1) => {
   }
 }
 
-interactABunch(relationships, numberOfInteractions);
+//interactABunch(relationships, numberOfInteractions);
 
 
 
+const getPeopleAsJson = () => {
+  return JSON.stringify(people.map(person => {
+    return {
+      ...person,
+      traits: {
+        ...person.traits,
+        location: person.traits.location ? person.traits.location.name : "no location!?",
+      }
+
+    }
+  }));
+}
+
+const getRelationshipsAsJson = () => {
+
+  return JSON.stringify(relationships.map(relationship => ({
+    ...relationship,
+    people: relationship.people.map(person => person.traits.name)
+  })))
+}
+
+const setPeople = (p) => {
+  people = p;
+}
 
 
+const addPeople = () => {
+  const newPeople = generatePeople(10);
+  const newRelationships = initialiseRelationships(newPeople, people);
+  people = [...people, ...newPeople];
+  relationships = [...relationships, ...newRelationships];
+}
 
-const http = require('http');
+const deleteEveryone = () => {
+  people = [];
+  relationships = [];
+}
 
-const hostname = '127.0.0.1';
-const port = 3001;
-
-
-
-const server = http.createServer((req, res) => {
-  console.log({
-    url:
-    req.url,
-    method: req.method
-  })
-  res.setHeader('Content-Type', 'text/plain');
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
-
-  if (req.method === 'DELETE') {
-    people = [];
-    relationships = [];
-    res.statusCode = 200;
-    res.end(JSON.stringify(people));
-    return;
-  }
-
-  if (req.method === 'POST') {
-    people = generatePeople(10);
-    relationships = initialiseRelationships(people);
-    res.statusCode = 201;
-    res.end(JSON.stringify(people));
-    return;
-  }
-
-  switch(req.url) {
-    case '/people':
-      res.statusCode = 200;
-      res.end(JSON.stringify(people));
-      return
-    case '/relationships':
-      res.statusCode = 200;
-      res.end(JSON.stringify(people));
-      return
-
-    case '/':
-      res.statusCode = 200;
-      res.end("Hi, I'm a server!");
-      return
-
-    default:
-      res.statusCode = 404;
-      res.end('you what?');
-      return
-  }
-});
-
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
+exports.generatePeople = generatePeople;
+exports.people = people;
+exports.relationships = relationships;
+exports.interactABunch = interactABunch;
+exports.initialiseRelationships = initialiseRelationships;
+exports.getPeopleAsJson = getPeopleAsJson;
+exports.setPeople = setPeople;
+exports.getRelationshipsAsJson = getRelationshipsAsJson;
+exports.deleteEveryone = deleteEveryone;
+exports.addPeople = addPeople;

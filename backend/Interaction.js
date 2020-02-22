@@ -6,8 +6,15 @@ const interact = (relationship) => {
   const p1Friendliness = randomNumber(relationship.people[0].traits.socialness); //say 3
   const p2Friendliness = randomNumber(relationship.people[1].traits.socialness); //say 7
 
+  console.log({
+    situationFriendliness,
+    p1Friendliness,
+    p2Friendliness,
+  })
   if (p1Friendliness > situationFriendliness || p2Friendliness > situationFriendliness) {
+    console.log('becoming friends!');
     relationship.status.friendship += 1;
+    console.log(  relationship.status.friendship )
   }
 
 }
