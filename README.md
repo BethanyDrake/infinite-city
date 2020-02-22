@@ -2,7 +2,7 @@
 
 To start server:
 ```
-node backend/main.js
+node backend/Server.js
 ```
 
 To start frontend:
